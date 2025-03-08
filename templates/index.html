@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Server</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+        a {
+            text-decoration: none;
+            color: #007BFF;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .directory {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>File Server</h1>
+
+    <h2>Upload a File</h2>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <input type="submit" value="Upload">
+    </form>
+
+    <h2>Browse Server Files</h2>
+    <p>Current Path: /{{ current_path }}</p>
+
+      <!-- Back button -->
+    {% if parent_path != '' %}
+        <a class="back-link" href="/browse/{{ parent_path }}">Back</a>
+    {% else %}
+        <a class="back-link" href="/">Back to Root</a>
+    {% endif %} 
+    <ul>
+        <!-- Display directories -->
+        {% for dir in dirs %}
+            <li class="directory">
+                <a href="/browse/{{ os.path.join(current_path, dir) }}">{{ dir }}/</a>
+            </li>
+        {% endfor %}
+
+        <!-- Display files -->
+        {% for file in files %}
+            <li>
+                <a href="/download/{{ os.path.join(current_path, file) }}">{{ file }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
