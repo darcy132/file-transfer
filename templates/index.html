@@ -26,6 +26,10 @@
         .directory {
             font-weight: bold;
         }
+        .download-directory {
+            margin-left: 10px;
+            color: #28a745;
+        }
     </style>
 </head>
 <body>
@@ -40,7 +44,7 @@
     <h2>Browse Server Files</h2>
     <p>Current Path: /{{ current_path }}</p>
 
-      <!-- Back button -->
+    <!-- Back button -->
     {% if parent_path != '' %}
         <a class="back-link" href="/browse/{{ parent_path }}">Back</a>
     {% else %}
@@ -51,6 +55,7 @@
         {% for dir in dirs %}
             <li class="directory">
                 <a href="/browse/{{ os.path.join(current_path, dir) }}">{{ dir }}/</a>
+                <a class="download-directory" href="/download_directory/{{ os.path.join(current_path, dir) }}">(Download Directory)</a>
             </li>
         {% endfor %}
 

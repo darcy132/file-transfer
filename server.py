@@ -1,5 +1,7 @@
 from flask import Flask, request, send_file, render_template, send_from_directory
 import os
+import zipfile
+from io import BytesIO
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
@@ -40,7 +42,7 @@ def list_directory(subpath):
         elif os.path.isdir(item_path):
             dirs.append(item)
 
-      # Calculate the parent directory
+    # Calculate the parent directory
     if subpath:
         parent_path = os.path.dirname(subpath)
         if parent_path == subpath:  # Root directory case
@@ -68,6 +70,27 @@ def download_file(filename):
     if os.path.isfile(full_path):
         return send_file(full_path, as_attachment=True)
     return 'File not found', 404
+
+@app.route('/download_directory/<path:subpath>')
+def download_directory(subpath):
+    # Construct the full path to the directory
+    full_path = os.path.join(app.config['BASE_FOLDER'], subpath)
+    if not os.path.isdir(full_path):
+        return 'Directory not found', 404
+
+    # Create a BytesIO object to hold the zip file in memory
+    memory_file = BytesIO()
+    with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
+        for root, dirs, files in os.walk(full_path):
+            for file in files:
+                file_path = os.path.join(root, file)
+                # Create the relative path for the file within the zip
+                relative_path = os.path.relpath(file_path, start=full_path)
+                zf.write(file_path, relative_path)
+    memory_file.seek(0)
+
+    # Send the zip file as a response
+    return send_file(memory_file, download_name=f"{os.path.basename(full_path)}.zip", as_attachment=True)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port='5000')
